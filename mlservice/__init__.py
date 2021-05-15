@@ -11,5 +11,6 @@ def create_app():
     env_config = 'config.'
     env_config += {'dev': 'DevelopmentConfig', 'prod': 'ProductionConfig'}[os.environ.get('CONFIGURATION_SETUP')]
     app.config.from_object(env_config)
-
-    return app
+    with app.app_context():
+        from . import routes
+        return app
