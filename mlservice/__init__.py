@@ -12,5 +12,5 @@ def create_app():
     env_config += {'dev': 'DevelopmentConfig', 'prod': 'ProductionConfig'}[os.environ.get('CONFIGURATION_SETUP')]
     app.config.from_object(env_config)
     with app.app_context():
-        from . import routes
+        from . import routes, mlutils
         return app
