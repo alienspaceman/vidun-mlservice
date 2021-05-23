@@ -4,6 +4,7 @@ from config import get_logger
 
 _logger = get_logger(logger_name=__name__)
 
+
 @current_app.route('/')
 def healthcheck():
     return "Hello, World!"
@@ -17,10 +18,16 @@ def make_inference():
     try:
         statusCode = 200
         status = 'OK'
-        response_data = current_app.config['model'].test_generation(data['description'], 100)
-        # response_data = current_app.config['model'].tokenizer.batch_encode_plus(['вступить в говно', 'гулять под дождем'], padding=True)
-        # # response_data=';rlkgjm'
-        _logger.info(response_data)
+        response_data = current_app.config['model'].generate_text(data['description'],
+                                                                  temperature=0.65,
+                                                                  top_k=50,
+                                                                  top_p=0.9,
+                                                                  no_repeat_ngram_size=3,
+                                                                  num_tokens_to_produce=200
+                                                                  )
+        _logger.info(f'Generation result: {response_data}')
+        response_data = current_app.config['model'].postprocess_text(response_data)
+        _logger.info(f'Postprocessing result: {response_data}')
     except Exception as e:
         statusCode = 400
         status = 'Fail'
