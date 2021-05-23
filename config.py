@@ -23,6 +23,22 @@ CACHE_DIR = DIR_ROOT / 'cache_models'
 CACHE_DIR.mkdir(exist_ok=True)
 
 
+def seed_torch(seed=1029):
+    import random
+    import numpy
+    import torch
+    import onnxruntime
+    from onnxruntime.capi._pybind_state import set_seed
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    numpy.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    onnxruntime.set_seed(seed)
+    set_seed(seed)
+
+
 def get_console_handler():
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(FORMATTER)
@@ -42,7 +58,7 @@ def get_logger(logger_name):
 
     logger = logging.getLogger(logger_name)
 
-    logger.setLevel(logging.INFO)
+    logger.setLevel({'dev': logging.INFO, 'prod': logging.WARNING}[os.environ.get('CONFIGURATION_SETUP')])
 
     logger.addHandler(get_console_handler())
     logger.addHandler(get_file_handler())
