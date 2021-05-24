@@ -7,3 +7,8 @@ torch==1.7.0
 transformers==4.5.0
 Flask-Cors==3.0.10
 gunicorn==20.1.0
+psycopg2
+Flask-SQLAlchemy
+SQLAlchemy
+Flask-Migrate
+google-cloud-storage
