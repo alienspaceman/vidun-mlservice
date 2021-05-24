@@ -2,6 +2,7 @@ import os
 import dotenv
 from flask import Flask
 from flask_migrate import Migrate
+from flask_cors import CORS
 from config import get_logger, seed_torch
 from mlservice.ml_app_utils import ModelConfig
 from mlservice.models import db
@@ -15,6 +16,7 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
     # load configuration
     env_config = 'config.'
     env_config += {'dev': 'DevelopmentConfig', 'prod': 'ProductionConfig'}[os.environ.get('CONFIGURATION_SETUP')]
