@@ -232,3 +232,8 @@ class ModelConfig:
         output = output.split('. ')
 
         return ". ".join(list(dict.fromkeys(output))[:4])
+
+    @staticmethod
+    def preprocess_text(input_text):
+
+        return '<s>' + input_text.capitalize()

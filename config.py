@@ -9,15 +9,15 @@ dotenv.load_dotenv()
 
 DIR_ROOT = pathlib.Path(__file__).resolve().parent
 
+MODELS_DIR = DIR_ROOT / 'models'
+MODELS_DIR.mkdir(exist_ok=True)
+
 FORMATTER = logging.Formatter(
     "%(asctime)s — %(name)s — %(levelname)s —"
     "%(funcName)s:%(lineno)d — %(message)s")
 LOG_DIR = DIR_ROOT / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / 'ml_api.log'
-
-MODELS_DIR = DIR_ROOT / 'models'
-MODELS_DIR.mkdir(exist_ok=True)
 
 CACHE_DIR = DIR_ROOT / 'cache_models'
 CACHE_DIR.mkdir(exist_ok=True)
@@ -70,6 +70,21 @@ def get_logger(logger_name):
 class Config(object):
     DEBUG = False
     TESTING = False
+    # SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{}:{}@/{}?host=/cloudsql/{}:{}:{}".format(os.environ.get('GOOGLE_DB_USER'),
+                                                                                               os.environ.get('GOOGLE_DB_PASSWORD'),
+                                                                                               os.environ.get('GOOGLE_DB_NAME'),
+                                                                                               os.environ.get('GOOGLE_DB_PROJECT_ID'),
+                                                                                               os.environ.get('GOOGLE_DB_REGION'),
+                                                                                               os.environ.get('GOOGLE_DB_INSTANCE_NAME'))
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
+    GOOGLE_BUCKET = os.environ.get('GOOGLE_BUCKET')
+    GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    GOOGLE_ONNX_MODEL = os.environ.get('GOOGLE_ONNX_MODEL')
+    GOOGLE_PYTORCH_MODEL = os.environ.get('GOOGLE_PYTORCH_MODEL')
+    MODELS_DIR = MODELS_DIR
+    CACHE_DIR = CACHE_DIR
 
 
 class ProductionConfig(Config):
@@ -81,6 +96,3 @@ class DevelopmentConfig(Config):
     ENV = "development"
     DEBUG = True
     SERVER_NAME = os.environ.get('SERVER')
-    MODEL_PATH = MODELS_DIR / os.environ.get('MODEL_PATH')
-    CACHE_DIR = CACHE_DIR
-    MODEL_OPTIMIZED_PATH = MODELS_DIR / os.environ.get('MODEL_OPTIMIZED_PATH')
