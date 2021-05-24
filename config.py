@@ -85,14 +85,13 @@ class Config(object):
     GOOGLE_PYTORCH_MODEL = os.environ.get('GOOGLE_PYTORCH_MODEL')
     MODELS_DIR = MODELS_DIR
     CACHE_DIR = CACHE_DIR
+    SERVER_NAME = os.environ.get('SERVER')
 
 
 class ProductionConfig(Config):
     ENV = "production"
-    SERVER_NAME = os.environ.get('SERVER')
 
 
 class DevelopmentConfig(Config):
     ENV = "development"
     DEBUG = True
-    SERVER_NAME = os.environ.get('SERVER')
