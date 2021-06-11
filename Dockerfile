@@ -23,6 +23,6 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 COPY . .
 RUN python download_artifacts.py
-CMD ["/bin/bash"]
+RUN chmod +x  ./gunicorn.sh
 
 ENTRYPOINT ["./gunicorn.sh"]
