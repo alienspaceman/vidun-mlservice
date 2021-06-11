@@ -1,5 +1,5 @@
 FROM python:3.8-slim-buster
-EXPOSE 5000
+EXPOSE 5555
 WORKDIR /usr/src/app/server
 
 RUN apt-get update && apt-get install -y --fix-missing \
