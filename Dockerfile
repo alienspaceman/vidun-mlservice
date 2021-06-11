@@ -1,5 +1,5 @@
 FROM python:3.8-slim-buster
-EXPOSE 5555
+EXPOSE 5000
 WORKDIR /usr/src/app/server
 
 RUN apt-get update && apt-get install -y --fix-missing \
@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y --fix-missing \
     python3-dev \
     && apt-get clean && rm -rf /tmp/* /var/tmp/*
 
-COPY requirements.txt .
+
 RUN pip install --upgrade pip
+
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt -f  https://download.pytorch.org/whl/torch_stable.html
 
 RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy

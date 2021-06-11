@@ -29,10 +29,18 @@ def create_app():
         from mlservice import routes
         _logger.info('Create model config object...')
         seed_torch()
-        app.config['model'] = ModelConfig(str(app.config['MODELS_DIR'] / app.config['GOOGLE_PYTORCH_MODEL']),
+        app.config['model'] = {'en': ModelConfig(str(app.config['MODELS_DIR'] / f'model_en' / app.config['GOOGLE_PYTORCH_MODEL']),
                                           app.config['CACHE_DIR'].name,
-                                          str(app.config['MODELS_DIR'] / app.config['GOOGLE_ONNX_MODEL'] / os.listdir(app.config['MODELS_DIR'] / app.config['GOOGLE_ONNX_MODEL'])[0])
+                                          str(app.config['MODELS_DIR'] / f'model_en' / app.config['GOOGLE_ONNX_MODEL'] / os.listdir(app.config['MODELS_DIR']  / f'model_en' /  app.config['GOOGLE_ONNX_MODEL'])[0]),
+                                                 bos='<BOS>',
+                                                 eos="<|enoftext|>"
+                                          ),
+                               'ru': ModelConfig(str(app.config['MODELS_DIR'] / f'model_ru' / app.config['GOOGLE_PYTORCH_MODEL']),
+                                          app.config['CACHE_DIR'].name,
+                                          str(app.config['MODELS_DIR']  / f'model_ru' /  app.config['GOOGLE_ONNX_MODEL'] / os.listdir(app.config['MODELS_DIR']  / f'model_ru' /  app.config['GOOGLE_ONNX_MODEL'])[0])
                                           )
+
+                               }
         db.create_all()
 
         _logger.info('Application is successfully created!')

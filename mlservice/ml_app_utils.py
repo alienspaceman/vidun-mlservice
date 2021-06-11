@@ -21,6 +21,8 @@ class ModelConfig:
                  cache_dir,
                  model_optimized_path,
                  device='cpu',
+                 bos='<s>',
+                 eos='</s>',
                  tokenizer=None,
                  config=None,
                  session=None,
@@ -34,6 +36,8 @@ class ModelConfig:
         self.config = config
         self.session = session
         self.threads = threads
+        self.bos = bos
+        self.eos = eos
 
         if self.tokenizer is None:
             self.get_tokenizer()
@@ -82,13 +86,14 @@ class ModelConfig:
         For performing gpt2 inference using our persistant session.
         """
 
+        _logger.info('Start inference')
         output_shapes = Gpt2Helper.get_output_shapes(
             batch_size=input_ids.size(0), past_sequence_length=past[0].size(3),
             sequence_length=input_ids.size(1), config=self.config
         )
-        # _logger.info('Get output buffers')
+        _logger.info('Get output buffers')
         output_buffers = Gpt2Helper.get_output_buffers(output_shapes, self.device)
-        # _logger.info('Prepare io binding')
+        _logger.info('Prepare io binding')
         io_binding = Gpt2Helper.prepare_io_binding(
             self.session, input_ids, position_ids, attention_mask,
             past, output_buffers, output_shapes
@@ -96,7 +101,7 @@ class ModelConfig:
         # _logger.info(f'Output shape: {output_shapes}')
         # _logger.info(f'input_ids: {input_ids}')
         # _logger.info(f'past: {len(past)}')
-        # _logger.info('Run session')
+        _logger.info('Run session')
         # start = time.time()
         self.session.run_with_iobinding(io_binding)
         # _logger.info('Get outputs')
@@ -108,6 +113,7 @@ class ModelConfig:
         return outputs
 
     def generate_text(self, input_text, temperature, top_k, top_p, no_repeat_ngram_size, num_tokens_to_produce=100):
+        _logger.info('Start generation')
         input_ids, attention_mask, position_ids, past = self.get_inputs(input_text)
         batch_size = input_ids.size(0)
         has_eos = torch.zeros(batch_size, dtype=torch.bool)
@@ -222,18 +228,25 @@ class ModelConfig:
         return "".join(
             [self.tokenizer.decode(output, skip_special_tokens=True) for i, output in enumerate(all_token_ids)])
 
-    @staticmethod
-    def postprocess_text(inference):
+    def postprocess_text(self, inference):
+        _logger.info('Start postprocessing')
+        _logger.info('Start postprocessing')
+        bos_pattern = '^' + "(" + self.bos + ")"
+        _logger.info(bos_pattern)
+        eos_pattern = "(" + self.eos + ")" + '.*$'
+        _logger.info(eos_pattern)
 
-        output = re.sub('^<s>', '', inference)
-        output = re.sub('</s>.*$', '', output)
-        # text_ext = re.sub('<.*$', '', text_ext)
+        output = re.sub(bos_pattern, '', inference)
+        output = re.sub(eos_pattern, '', output)
         output = output.rstrip().lstrip()
         output = output.split('. ')
 
+        # output = re.sub('^<s>', '', inference)
+        # output = re.sub('</s>.*$', '', output)
+        # text_ext = re.sub('<.*$', '', text_ext)
+
         return ". ".join(list(dict.fromkeys(output))[:4])
 
-    @staticmethod
-    def preprocess_text(input_text):
-
-        return '<s>' + input_text.capitalize()
+    def preprocess_text(self, input_text):
+        _logger.info('Start preprocessing')
+        return self.bos + input_text.capitalize()
